@@ -37,25 +37,43 @@ app.get("/api/notes", function (req, res) {
     res.JSON(notesData);
 });
 // post note data
-app.post("/api/notes", function (req, res) {
-    //read and parse data from json
-    notesData = fs.readFileSync("/db/db.json", "utf8");
-    notesData= JSON.parse(notesData);
+app.post("/api/notes", function (req, res) { 
+    // read and parse data from json
+    notesData = fs.readFileSync("/db/db.json", "utf-8");
+    notesData = JSON.parse(notesData);
     let note = req.body;
     note.id = notesData.length + 1;
     notesData.push(note);
-    notesData = JSON.stringify(notesData);//might be problem
-
+    notesData = JSON.stringify(notesData);
+//write to db
     fs.writeFile(__dirname + "/db/db.json", JSON.stringify(notesData), "utf-8", (err) => {
         if (err) 
             throw err;
         
+
         console.log("Your note has been posted.");
     });
     res.json(JSON.parse(notesData));
-    //delete note
-    app.delete("/api")
-});
+
+    // delete note
+    app.delete("/api/notes/:id", function(req, res) {
+        notesData= fs.readFileSync("/db/db.json", "utf-8");
+        notesData = JSON.parse(notesData);
+        const toDelete = notesData.filter((note) => note.id != parseInt(req.params.id));
+            fs.writeFile("/db/db.json", JSON.stringify(toDelete), "utf-8", (err) => {
+                if (err) 
+                    throw err;
+    
+                    console.log("Your note has been deleted.");
+            });
+            res.json(toDelete);
+          });
+        
+        
+
+   
+    })
+
 
 // listen on port
 app.listen(PORT, (req, res) => {
