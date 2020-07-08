@@ -11,7 +11,7 @@ app.use(express.json());
 
 // View / HTML
 app.get("/", (req, res) =>{
-    res.send("Hello world;")
+    res.send("Hello world");
 })
 
 // API / JSON
