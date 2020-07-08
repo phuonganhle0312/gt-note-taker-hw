@@ -1,5 +1,7 @@
 //require express
 const express = require("express");
+const path = require("path");
+
 //create an instance of express
 const app =  express ();
 //add a port 
@@ -11,8 +13,8 @@ app.use(express.json());
 
 // View / HTML
 app.get("/", (req, res) =>{
-    res.send("Hello world");
-})
+    res.sendFile(path.join(__dirname + "/public/index.html"));
+});
 
 // API / JSON
 
