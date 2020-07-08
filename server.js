@@ -1,56 +1,63 @@
-//require express
+// require express
 const express = require("express");
-//require path
+// require path
 const path = require("path");
-//require fs
+// require fs
 const fs = require("fs");
 
-//create an instance of express
-const app =  express ();
-//add a port 
-const PORT= process.env.PORT || 3000;
+// create an instance of express
+const app = express();
+// add a port
+const PORT = process.env.PORT || 3000;
 
 // sets up the express app to handle data parsing
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 app.use(express.static(path.join(__dirname + "/public")));
 
 
-//GET requests
+// GET requests
 // View / HTML
-app.get("/", (req, res) =>{
+app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname + "/public/index.html"));
 });
-app.get("/notes", (req, res) =>{
+app.get("/notes", (req, res) => {
     res.sendFile(path.join(__dirname + "/public/notes.html"));
 });
 
-//API/JSON
-//retrieve note data
-app.get("/api/notes", function(req, res) {
-    return res.sendFile(path.json(__dirname + "/db/db.json"));
-  });
-let notesData= [];
-app.get("/api/notes", function(req, res) {
+// API/JSON
+// retrieve note data
+app.get("/api/notes", function (req, res) {
+    res.sendFile(path.join(__dirname + "/db/db.json"));
+});
+let notesData = [];
+app.get("/api/notes", function (req, res) {
     notesData = fs.readFileSync("/db/db.json", "utf-8");
     notesData = JSON.parse(notesData);
     res.JSON(notesData);
-  });
-  //post note data
-  app.post("/api/notes", function (req, res){
-let note= req.body;
-note.id = notesData.length + 1;
-notesData.push(note);
-fs.writeFile(__dirname + "/db/db.json", JSON.stringify(notesData),"utf-8", (err) => {
-    if (err) throw err;
-    console.log ("Your note has been posted.");
 });
-  });
+// post note data
+app.post("/api/notes", function (req, res) {
+    //read and parse data from json
+    notesData = fs.readFileSync("/db/db.json", "utf8");
+    notesData= JSON.parse(notesData);
+    let note = req.body;
+    note.id = notesData.length + 1;
+    notesData.push(note);
+    notesData = JSON.stringify(notesData);//might be problem
 
+    fs.writeFile(__dirname + "/db/db.json", JSON.stringify(notesData), "utf-8", (err) => {
+        if (err) 
+            throw err;
+        
+        console.log("Your note has been posted.");
+    });
+    res.json(JSON.parse(notesData));
+    //delete note
+    app.delete("/api")
+});
 
-
-
-//listen on port
+// listen on port
 app.listen(PORT, (req, res) => {
     console.log(`Currently running on http://localhost:${PORT}`);
 });
